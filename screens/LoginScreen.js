@@ -83,6 +83,7 @@ const LoginScreen = () => {
 
           <Text className="font-semibold text-lg left-2 mt-8">Password</Text>
           <TextInput
+            secureTextEntry
             value={password}
             onChangeText={(text) => setPassword(text)}
             className="bg-white py-[15px] rounded-xl w-[290px]"

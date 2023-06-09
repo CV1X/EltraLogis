@@ -18,7 +18,7 @@ const HomeScreen = () => {
   const route = useRoute();
   const [user, setUser] = useState(route.params?.user);
   const [curse, setCurse] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const token = route.params?.token;
   const tokenEXP = route.params?.tokenEXP;
   const phone = route.params?.phone;
