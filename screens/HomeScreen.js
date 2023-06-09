@@ -8,18 +8,33 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import { logo } from "../assets";
+import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import Card from "../components/Card";
+import Loader from "../components/Loader";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const [user, setUser] = useState(route.params?.user);
+  const [curse, setCurse] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const token = route.params?.token;
   const tokenEXP = route.params?.tokenEXP;
   const phone = route.params?.phone;
+
+  const storeToken = async (token) => {
+    try {
+      if (token) {
+        await AsyncStorage.setItem("token", token);
+        console.log("Token stored successfully: ", token);
+      } else {
+        console.log("Invalid token value. Token not stored.");
+      }
+    } catch (error) {
+      console.error("Error storing token:", error);
+    }
+  };
 
   useEffect(() => {
     const checkLoginStatus = async () => {
@@ -38,7 +53,6 @@ const HomeScreen = () => {
         console.error("Error checking login status:", error);
       }
     };
-    console.log(token, tokenEXP);
 
     checkLoginStatus();
   }, []);
@@ -49,11 +63,37 @@ const HomeScreen = () => {
     });
   }, []);
 
+  const fetchData = async () => {
+    try {
+      const api = "https://lite.eltralogis.com/pod-api/pod/curse";
+
+      const config = {
+        headers: {
+          Podauth: token,
+        },
+      };
+
+      const response = await axios.get(api, config);
+
+      setCurse(response.data || []);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
+
   const handleLogout = async () => {
     try {
       // Perform any necessary logout actions, such as clearing user data or tokens
       await AsyncStorage.removeItem("user");
       await AsyncStorage.setItem("isLoggedIn", "false");
+      setCurse([]);
       navigation.navigate("LoginScreen");
     } catch (error) {
       console.error("Error during logout:", error);
@@ -64,64 +104,63 @@ const HomeScreen = () => {
     <View className="w-full h-full bg-[#374755] ">
       <View className="w-full h-[180px] bg-[#374755] items-center justify-center ">
         <SafeAreaView className=" w-[360px] h-[120px] top-5 bg-white justify-center items-center rounded-[50px] flex-row">
-          <Text className="text-black text-[22px]  left-[20px] font-bold absolute bottom-10">
-            Hello, <Text className="text-[22px] "> 👋</Text>
+          <Text className="text-black text-[22px]  left-[20px] font-semibold absolute bottom-11">
+            Hello, {user.tu_full_name}
+            <Text className="text-[22px] "> 👋</Text>
           </Text>
-          <View className="w-10 h-10 right-8 absolute bottom-5">
-            <Image source={logo} className="w-full h-full rounded-xl" />
-          </View>
+
           {user && (
             <TouchableOpacity
               onPress={handleLogout}
-              className="absolute bg-red-500 top-3 right-5 w-[80px] h-[30px] items-center justify-center rounded-3xl"
+              className="absolute bg-red-500 top-[46px] right-3 w-[70px] h-[30px] items-center justify-center rounded-3xl"
             >
               <Text className="text-white">Logout</Text>
             </TouchableOpacity>
           )}
         </SafeAreaView>
       </View>
-      <ScrollView>
-        <Card
-          cardId={"1"}
-          nrCursa={"1"}
-          desc={
-            "The food truck delivery: A delicious assortment of gourmet treats delivered right to your doorstep, satisfying your culinary cravings."
-          }
-          loc1={"Paris"}
-          loc2={"Romania"}
-          price={"2200$"}
-          onPressDetails={() =>
-            navigation.navigate("Details", {
-              cardId: "1",
-              data: "1",
-              desc: "The food truck delivery: A delicious assortment of gourmet treats delivered right to your doorstep, satisfying your culinary cravings.",
-              loc1: "Paris",
-              loc2: "Romania",
-              price: "2200$",
-            })
-          }
-        />
 
-        <Card
-          cardId={"2"}
-          nrCursa={"2"}
-          desc={
-            "The package delivery truck: Prompt and reliable, this truck ensures your parcels reach their destination safely and on time."
-          }
-          loc1={"Romania"}
-          loc2={"Germany"}
-          price={"2800$"}
-          onPressDetails={() =>
-            navigation.navigate("Details", {
-              cardId: "2",
-              data: "2",
-              desc: "The package delivery truck: Prompt and reliable, this truck ensures your parcels reach their destination safely and on time.",
-              loc1: "Romania",
-              loc2: "Germany",
-              price: "2800$",
-            })
-          }
-        />
+      <ScrollView>
+        {isLoading ? (
+          <View className="flex-1 justify-center items-center">
+            <Loader />
+          </View>
+        ) : (
+          <>
+            {/* Rest of your code */}
+            {curse &&
+            curse.collecting_transports &&
+            curse.collecting_transports.length > 0 ? (
+              curse.collecting_transports.map((curseItem, index) => (
+                <Card
+                  id={curseItem.id_collecting_group}
+                  cardId={(index + 1).toString()}
+                  nrCursa={(index + 1).toString()}
+                  desc={
+                    curseItem.collecting_group_details
+                      ? curseItem.collecting_group_details
+                      : "There is no description yet"
+                  }
+                  groupTrailer={curseItem.collecting_group_trailer}
+                  groupCar={curseItem.collecting_group_car}
+                  onPressDetails={() =>
+                    navigation.navigate("Details", {
+                      cardId: (index + 1).toString(),
+                      data: "1",
+                      desc: curseItem.collecting_group_details
+                        ? curseItem.collecting_group_details
+                        : "There is no description yet",
+                      groupCar: curseItem.collecting_group_car,
+                      groupTrailer: curseItem.collecting_group_trailer,
+                    })
+                  }
+                />
+              ))
+            ) : (
+              <></>
+            )}
+          </>
+        )}
       </ScrollView>
       <View className="bg-[#374755] w-10 h-5"></View>
     </View>

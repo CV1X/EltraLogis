@@ -13,7 +13,6 @@ export const login = async (email, phone, password) => {
     formData.append("password", password);
 
     const response = await axios.post(url, formData);
-
     return response.data;
   } catch (error) {
     console.log(error);

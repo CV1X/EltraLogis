@@ -17,7 +17,7 @@ import { larrow } from "../assets";
 const Details = ({ route }) => {
   const navigation = useNavigation();
   const [imageUris, setImageUris] = useState([]);
-  const { cardId, data, desc, loc1, loc2, price } = route.params;
+  const { cardId, data, desc, groupCar, groupTrailer } = route.params;
 
   useEffect(() => {
     (async () => {
@@ -109,16 +109,15 @@ const Details = ({ route }) => {
           <Description
             data={data}
             desc={desc}
-            price={price}
-            loc1={loc1}
-            loc2={loc2}
+            groupCar={groupCar}
+            groupTrailer={groupTrailer}
           />
         </View>
 
         <View className="flex-row">
           <TouchableOpacity
             onPress={openCamera}
-            className="bottom-[-20px] bg-blue-300"
+            className="bottom-[-20px] bg-blue-400"
             style={{
               width: 180,
               top: 110,
@@ -136,7 +135,7 @@ const Details = ({ route }) => {
 
           <TouchableOpacity
             onPress={openGallery}
-            className="bottom-[-20px] bg-blue-300"
+            className="bottom-[-20px] bg-blue-400"
             style={{
               width: 120,
               top: 110,

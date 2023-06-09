@@ -2,7 +2,7 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { arrow } from "../assets";
 
-const Card = ({ nrCursa, desc, loc1, loc2, price, cardId, onPressDetails }) => {
+const Card = ({ nrCursa, desc, groupCar, groupTrailer, onPressDetails }) => {
   const navigation = useNavigation();
   return (
     <View className="items-center">
@@ -19,12 +19,12 @@ const Card = ({ nrCursa, desc, loc1, loc2, price, cardId, onPressDetails }) => {
           {/* BUTON DETALII */}
 
           <View className="w-[350px]  h-[60px] bg-slate-300 rounded-2xl flex-row relative bottom-2 left-2">
-            <Text className="top-2 left-4 absolute text-[16px]">
-              From {loc1} to {loc2}
+            <Text className="top-2 left-4 absolute text-[14px] font-semibold">
+              Group Trailer : {groupTrailer}
             </Text>
 
-            <Text className="top-8 left-4 absolute top font-bold">
-              Price : {price}
+            <Text className="top-8 left-4 absolute top font-semibold">
+              Group Car : {groupCar}
             </Text>
 
             <TouchableOpacity
